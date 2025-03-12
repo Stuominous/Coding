@@ -2,7 +2,6 @@
 #Automated Backup System
 #Fivety-Five Technologies 2025
 
-
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import shutil
@@ -87,6 +86,12 @@ class SafVaultER:
         
         # Footer Label
         ttk.Label(self.frame, text="Fivety-Five Technologies 2025", font=("Arial", 12, "bold"), background='#333333', foreground='white').pack(pady=10)
+    
+    def select_backup_path(self, event=None):
+        """Updates the path entry field based on the selected backup location."""
+        location = self.location_var.get()
+        if location in ["USB", "External Drive", "Server", "Internal Location"]:
+            self.browse_path()
     
     def browse_path(self):
         folder_selected = filedialog.askdirectory()
