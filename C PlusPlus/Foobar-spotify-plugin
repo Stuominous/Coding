@@ -1,0 +1,43 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Coding/Foobar-spotify-plugin/foobar2000/SDK",
+                "C:/Coding/Foobar-spotify-plugin/foobar2000/SDK/foobar2000"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}
+#include "foobar2000/SDK/foobar2000.h"
+// Define component information
+DECLARE_COMPONENT_VERSION(
+    "Spotify for foobar2000",
+    "0.1",
+    "A plugin to integrate Spotify with foobar2000"
+);
+
+// Initialize component
+class InitQuit : public initquit {
+public:
+    void on_init() {
+        // Initialization code
+    }
+    void on_quit() {
+        // Cleanup code
+    }
+};
+
+static initquit_factory_t<InitQuit> g_initquit_factory;
