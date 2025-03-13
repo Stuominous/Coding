@@ -9,8 +9,8 @@ from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QFileDialog, QTextEdit, QProgressBar, QStatusBar, QHBoxLayout, QGridLayout, QFrame, QInputDialog, QMessageBox
 )
-from PyQt6.QtGui import QFont
-from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont, QIcon, QPixmap
+from PyQt6.QtCore import Qt, QSize
 
 class DupliFynder(QWidget):
     def __init__(self):
@@ -31,8 +31,8 @@ class DupliFynder(QWidget):
         layout.addWidget(self.label)
         
         self.selectButton = QPushButton("Select Folder")
-        self.selectButton.setFont(QFont("Arial", 10, QFont.Weight.Bold))
-        self.selectButton.setStyleSheet("background-color: #2980B9; color: white; padding: 10px; border: 2px solid #3498DB; border-radius: 5px;")
+        self.selectButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
+        self.selectButton.setStyleSheet("background-color: #2980B9; color: white; padding: 9px; border: 2px solid #3498DB; border-radius: 5px;")  # 10% smaller padding
         self.selectButton.clicked.connect(self.selectFolder)
         layout.addWidget(self.selectButton)
         
@@ -41,27 +41,44 @@ class DupliFynder(QWidget):
         self.fileTypeLabel.setFont(QFont("Arial", 12, QFont.Weight.Bold))
         layout.addWidget(self.fileTypeLabel)
         
-        self.addFileTypeButtons(layout)
+        self.addFileTypeButtons(layout, "Include")
         
         self.addFileTypeButton = QPushButton("Add Other File Type")
-        self.addFileTypeButton.setFont(QFont("Arial", 10, QFont.Weight.Bold))
-        self.addFileTypeButton.setStyleSheet("background-color: #2980B9; color: white; padding: 10px; border: 2px solid #3498DB; border-radius: 5px;")
+        self.addFileTypeButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
+        self.addFileTypeButton.setStyleSheet("background-color: #2980B9; color: white; padding: 9px; border: 2px solid #3498DB; border-radius: 5px;")  # 10% smaller padding
         self.addFileTypeButton.clicked.connect(self.addOtherFileType)
         layout.addWidget(self.addFileTypeButton)
         
-        # Search entire directory button
-        self.searchEntireDirButton = QPushButton("I Don't want to select anything, I want to search everything!")
-        self.searchEntireDirButton.setFont(QFont("Arial", 10, QFont.Weight.Bold))
-        self.searchEntireDirButton.setStyleSheet("background-color: #E74C3C; color: white; padding: 10px; border: 2px solid #C0392B; border-radius: 5px;")
-        self.searchEntireDirButton.clicked.connect(self.confirmSearchEntireDir)
-        layout.addWidget(self.searchEntireDirButton)
+        # Exclude file types section
+        self.excludeFileTypeLabel = QLabel("What type of files are excluded from the search?")
+        self.excludeFileTypeLabel.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        layout.addWidget(self.excludeFileTypeLabel)
+        
+        self.addFileTypeButtons(layout, "Exclude")
+        
+        # Divider line
+        line = QFrame()
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Sunken)
+        layout.addWidget(line)
         
         # Scan button section
         self.scanButton = QPushButton("Scan for Duplicates")
-        self.scanButton.setFont(QFont("Arial", 10, QFont.Weight.Bold))
-        self.scanButton.setStyleSheet("background-color: #2980B9; color: white; padding: 10px; border: 2px solid #3498DB; border-radius: 5px;")
+        self.scanButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
+        self.scanButton.setStyleSheet("background-color: #E67E22; color: white; padding: 9px; border: 2px solid #D35400; border-radius: 5px;")  # 10% smaller padding
+        self.scanButton.setIcon(QIcon(QPixmap("DF3.jpg")))
+        self.scanButton.setIconSize(QSize(22, 22))  # 10% smaller
         self.scanButton.clicked.connect(self.scanDuplicates)
         layout.addWidget(self.scanButton)
+        
+        # Tag message
+        self.tagMessage = QLabel("*if no file types are selected, then all duplicates will be found!")
+        tagFont = QFont("Arial", 9)  # 10% smaller
+        tagFont.setItalic(True)
+        self.tagMessage.setFont(tagFont)
+        self.tagMessage.setStyleSheet("color: #FFFFFF;")
+        self.tagMessage.setAlignment(Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.tagMessage)
         
         # Progress bar section
         self.progressBar = QProgressBar()
@@ -76,8 +93,8 @@ class DupliFynder(QWidget):
         
         # Export button section
         self.exportButton = QPushButton("Export Report to Excel")
-        self.exportButton.setFont(QFont("Arial", 10, QFont.Weight.Bold))
-        self.exportButton.setStyleSheet("background-color: #2980B9; color: white; padding: 10px; border: 2px solid #3498DB; border-radius: 5px;")
+        self.exportButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
+        self.exportButton.setStyleSheet("background-color: #2980B9; color: white; padding: 9px; border: 2px solid #3498DB; border-radius: 5px;")  # 10% smaller padding
         self.exportButton.clicked.connect(self.exportReport)
         self.exportButton.setEnabled(False)
         layout.addWidget(self.exportButton)
@@ -93,7 +110,7 @@ class DupliFynder(QWidget):
         self.duplicates = []
         self.searchEntireDir = False
     
-    def addFileTypeButtons(self, layout):
+    def addFileTypeButtons(self, layout, mode):
         # Define file type buttons
         self.fileTypes = {
             ".jpg": QPushButton(".jpg"),
@@ -128,9 +145,13 @@ class DupliFynder(QWidget):
         row, col = 0, 0
         for ext, button in self.fileTypes.items():
             button.setCheckable(True)
-            button.setFont(QFont("Arial", 10, QFont.Weight.Bold))
-            button.setStyleSheet("background-color: #848383; color: white; padding: 5px; border: 2px solid #0c0c0b; border-radius: 5px;")
-            button.clicked.connect(lambda checked, btn=button: self.toggleButton(btn))
+            button.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
+            if mode == "Include":
+                button.setStyleSheet("background-color: #848383; color: white; padding: 4.5px; border: 2px solid #0c0c0b; border-radius: 5px;")  # 10% smaller padding
+                button.clicked.connect(lambda checked, btn=button: self.toggleButton(btn, "Include"))
+            else:
+                button.setStyleSheet("background-color: #5d3939; color: white; padding: 4.5px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 10% smaller padding
+                button.clicked.connect(lambda checked, btn=button: self.toggleButton(btn, "Exclude"))
             self.fileTypeLayout.addWidget(button, row, col)
             col += 1
             if col == 6:
@@ -139,12 +160,18 @@ class DupliFynder(QWidget):
         
         layout.addLayout(self.fileTypeLayout)
     
-    def toggleButton(self, button):
+    def toggleButton(self, button, mode):
         # Toggle button style on selection
         if button.isChecked():
-            button.setStyleSheet("background-color: #39FF14; color: black; padding: 5px; border: 2px solid #39FF14; border-radius: 5px;")
+            if mode == "Include":
+                button.setStyleSheet("background-color: #39FF14; color: black; padding: 4.5px; border: 2px solid #39FF14; border-radius: 5px;")  # 10% smaller padding
+            else:
+                button.setStyleSheet("background-color: red; color: black; padding: 4.5px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 10% smaller padding
         else:
-            button.setStyleSheet("background-color: #848383; color: white; padding: 5px; border: 2px solid #0c0c0b; border-radius: 5px;")
+            if mode == "Include":
+                button.setStyleSheet("background-color: #848383; color: white; padding: 4.5px; border: 2px solid #0c0c0b; border-radius: 5px;")  # 10% smaller padding
+            else:
+                button.setStyleSheet("background-color: #5d3939; color: white; padding: 4.5px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 10% smaller padding
     
     def addOtherFileType(self):
         # Add other file type button
@@ -155,9 +182,9 @@ class DupliFynder(QWidget):
             if text not in self.fileTypes:
                 button = QPushButton(text)
                 button.setCheckable(True)
-                button.setFont(QFont("Arial", 10, QFont.Weight.Bold))
-                button.setStyleSheet("background-color: #848383; color: white; padding: 5px; border: 2px solid #0c0c0b; border-radius: 5px;")
-                button.clicked.connect(lambda checked, btn=button: self.toggleButton(btn))
+                button.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
+                button.setStyleSheet("background-color: #848383; color: white; padding: 4.5px; border: 2px solid #0c0c0b; border-radius: 5px;")  # 10% smaller padding
+                button.clicked.connect(lambda checked, btn=button: self.toggleButton(btn, "Include"))
                 self.fileTypes[text] = button
                 row = self.fileTypeLayout.rowCount()
                 col = self.fileTypeLayout.columnCount()
@@ -165,30 +192,6 @@ class DupliFynder(QWidget):
                     col = 0
                     row += 1
                 self.fileTypeLayout.addWidget(button, row, col)
-    
-    def confirmSearchEntireDir(self):
-        # Confirm search entire directory
-        msgBox = QMessageBox()
-        msgBox.setIcon(QMessageBox.Icon.Warning)
-        msgBox.setWindowTitle("Confirm Search Entire Directory")
-        msgBox.setText("This will scour the entire directory you have selected for all duplicates of all types, please confirm you really want to do this!!!")
-        msgBox.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-        yesButton = msgBox.button(QMessageBox.StandardButton.Yes)
-        yesButton.setText("Into the Abyss Go I")
-        noButton = msgBox.button(QMessageBox.StandardButton.No)
-        noButton.setText("Nope, my mistake - nevermind")
-        result = msgBox.exec()
-        if result == QMessageBox.StandardButton.Yes:
-            self.searchEntireDir = True
-            self.highlightAllFileTypeButtons()
-        else:
-            self.searchEntireDir = False
-    
-    def highlightAllFileTypeButtons(self):
-        # Highlight all file type buttons
-        for button in self.fileTypes.values():
-            button.setChecked(True)
-            button.setStyleSheet("background-color: #39FF14; color: black; padding: 5px; border: 2px solid #39FF14; border-radius: 5px;")
     
     def selectFolder(self):
         # Select folder dialog
@@ -210,7 +213,7 @@ class DupliFynder(QWidget):
         for root, _, files in os.walk(self.folderPath):
             for file in files:
                 file_path = os.path.join(root, file)
-                if self.searchEntireDir or not self.is_excluded_file(file):
+                if not self.is_excluded_file(file) and self.is_included_file(file):
                     file_list.append(file_path)
         
         total_files = len(file_list)
@@ -245,7 +248,14 @@ class DupliFynder(QWidget):
     def is_excluded_file(self, filename):
         # Check if file is excluded based on selected file types
         for ext, button in self.fileTypes.items():
-            if filename.lower().endswith(ext) and not button.isChecked():
+            if filename.lower().endswith(ext) and button.isChecked():
+                return True
+        return False
+    
+    def is_included_file(self, filename):
+        # Check if file is included based on selected file types
+        for ext, button in self.fileTypes.items():
+            if filename.lower().endswith(ext) and button.isChecked():
                 return True
         return False
     
