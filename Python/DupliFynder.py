@@ -46,7 +46,7 @@ class DupliFynder(QWidget):
         self.addFileTypeButton = QPushButton("Add Other File Type")
         self.addFileTypeButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
         self.addFileTypeButton.setStyleSheet("background-color: #2980B9; color: white; padding: 9px; border: 2px solid #3498DB; border-radius: 5px;")  # 10% smaller padding
-        self.addFileTypeButton.clicked.connect(self.addOtherFileType)
+        self.addFileTypeButton.clicked.connect(lambda: self.addOtherFileType("Include"))
         layout.addWidget(self.addFileTypeButton)
         
         # Exclude file types section
@@ -55,6 +55,12 @@ class DupliFynder(QWidget):
         layout.addWidget(self.excludeFileTypeLabel)
         
         self.addFileTypeButtons(layout, "Exclude")
+        
+        self.addExcludeFileTypeButton = QPushButton("Add Other File Type")
+        self.addExcludeFileTypeButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
+        self.addExcludeFileTypeButton.setStyleSheet("background-color: #5d3939; color: white; padding: 9px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 10% smaller padding
+        self.addExcludeFileTypeButton.clicked.connect(lambda: self.addOtherFileType("Exclude"))
+        layout.addWidget(self.addExcludeFileTypeButton)
         
         # Divider line
         line = QFrame()
@@ -66,8 +72,6 @@ class DupliFynder(QWidget):
         self.scanButton = QPushButton("Scan for Duplicates")
         self.scanButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
         self.scanButton.setStyleSheet("background-color: #E67E22; color: white; padding: 9px; border: 2px solid #D35400; border-radius: 5px;")  # 10% smaller padding
-        self.scanButton.setIcon(QIcon(QPixmap("DF3.jpg")))
-        self.scanButton.setIconSize(QSize(22, 22))  # 10% smaller
         self.scanButton.clicked.connect(self.scanDuplicates)
         layout.addWidget(self.scanButton)
         
@@ -147,10 +151,10 @@ class DupliFynder(QWidget):
             button.setCheckable(True)
             button.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
             if mode == "Include":
-                button.setStyleSheet("background-color: #848383; color: white; padding: 4.5px; border: 2px solid #0c0c0b; border-radius: 5px;")  # 10% smaller padding
+                button.setStyleSheet("background-color: #848383; color: white; padding: 4.41px; border: 2px solid #0c0c0b; border-radius: 5px;")  # 12% smaller padding
                 button.clicked.connect(lambda checked, btn=button: self.toggleButton(btn, "Include"))
             else:
-                button.setStyleSheet("background-color: #5d3939; color: white; padding: 4.5px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 10% smaller padding
+                button.setStyleSheet("background-color: #5d3939; color: white; padding: 4.41px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 12% smaller padding
                 button.clicked.connect(lambda checked, btn=button: self.toggleButton(btn, "Exclude"))
             self.fileTypeLayout.addWidget(button, row, col)
             col += 1
@@ -164,16 +168,16 @@ class DupliFynder(QWidget):
         # Toggle button style on selection
         if button.isChecked():
             if mode == "Include":
-                button.setStyleSheet("background-color: #39FF14; color: black; padding: 4.5px; border: 2px solid #39FF14; border-radius: 5px;")  # 10% smaller padding
+                button.setStyleSheet("background-color: #39FF14; color: black; padding: 4.41px; border: 2px solid #39FF14; border-radius: 5px;")  # 12% smaller padding
             else:
-                button.setStyleSheet("background-color: red; color: black; padding: 4.5px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 10% smaller padding
+                button.setStyleSheet("background-color: red; color: black; padding: 4.41px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 12% smaller padding
         else:
             if mode == "Include":
-                button.setStyleSheet("background-color: #848383; color: white; padding: 4.5px; border: 2px solid #0c0c0b; border-radius: 5px;")  # 10% smaller padding
+                button.setStyleSheet("background-color: #848383; color: white; padding: 4.41px; border: 2px solid #0c0c0b; border-radius: 5px;")  # 12% smaller padding
             else:
-                button.setStyleSheet("background-color: #5d3939; color: white; padding: 4.5px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 10% smaller padding
+                button.setStyleSheet("background-color: #5d3939; color: white; padding: 4.41px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 12% smaller padding
     
-    def addOtherFileType(self):
+    def addOtherFileType(self, mode):
         # Add other file type button
         text, ok = QInputDialog.getText(self, 'Add File Type', 'Enter file extension (e.g., .txt):')
         if ok and text:
@@ -183,8 +187,12 @@ class DupliFynder(QWidget):
                 button = QPushButton(text)
                 button.setCheckable(True)
                 button.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
-                button.setStyleSheet("background-color: #848383; color: white; padding: 4.5px; border: 2px solid #0c0c0b; border-radius: 5px;")  # 10% smaller padding
-                button.clicked.connect(lambda checked, btn=button: self.toggleButton(btn, "Include"))
+                if mode == "Include":
+                    button.setStyleSheet("background-color: #848383; color: white; padding: 4.41px; border: 2px solid #0c0c0b; border-radius: 5px;")  # 12% smaller padding
+                    button.clicked.connect(lambda checked, btn=button: self.toggleButton(btn, "Include"))
+                else:
+                    button.setStyleSheet("background-color: #5d3939; color: white; padding: 4.41px; border: 2px solid #4b2e2e; border-radius: 5px;")  # 12% smaller padding
+                    button.clicked.connect(lambda checked, btn=button: self.toggleButton(btn, "Exclude"))
                 self.fileTypes[text] = button
                 row = self.fileTypeLayout.rowCount()
                 col = self.fileTypeLayout.columnCount()

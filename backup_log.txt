@@ -1,0 +1,4 @@
+2025-03-12 23:49:06,760 - INFO - Scheduled backup every 24 hours
+2025-03-12 23:49:06,760 - WARNING - Backup destination /media/usb_drive/backups is not available
+2025-03-12 23:50:31,490 - INFO - Scheduled backup every 24 hours
+2025-03-12 23:50:31,491 - WARNING - Backup destination /media/usb_drive/backups is not available

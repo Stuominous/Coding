@@ -133,26 +133,36 @@ class BackupManager:
 def main():
     # Example configuration - customize these values
     source_paths = [
-        "/path/to/important/file.txt",
-        "/path/to/important/folder"
+        "C:/path/to/important/file.txt",  # Update this path
+        "C:/path/to/important/folder"     # Update this path
     ]
     
-    backup_destination = "/media/usb_drive/backups"  # For Linux
-    # backup_destination = "E:/backups"  # For Windows
+    backup_destination = "E:/backups"  # Update this path for Windows
+    # backup_destination = "/media/usb_drive/backups"  # For Linux
     # backup_destination = "/Volumes/MY_USB/backups"  # For macOS
     
     interval_hours = 24  # Backup every 24 hours
     is_usb = True  # Set to False if backing up to a network or local drive
     
-    # Create and start the backup manager
-    backup_manager = BackupManager(
-        source_paths=source_paths,
-        backup_destination=backup_destination,
-        interval_hours=interval_hours,
-        is_usb=is_usb
-    )
+    # Log the configuration
+    logging.info(f"Source paths: {source_paths}")
+    logging.info(f"Backup destination: {backup_destination}")
+    logging.info(f"Interval hours: {interval_hours}")
+    logging.info(f"Is USB: {is_usb}")
     
-    backup_manager.start_scheduled_backup()
+    # Create and start the backup manager
+    try:
+        backup_manager = BackupManager(
+            source_paths=source_paths,
+            backup_destination=backup_destination,
+            interval_hours=interval_hours,
+            is_usb=is_usb
+        )
+        logging.info("BackupManager initialized successfully")
+        
+        backup_manager.start_scheduled_backup()
+    except Exception as e:
+        logging.error(f"Failed to initialize BackupManager: {str(e)}")
 
 if __name__ == "__main__":
     main()
