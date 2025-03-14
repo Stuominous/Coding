@@ -96,7 +96,7 @@ class DupliFynder(QWidget):
         layout.addWidget(self.resultText)
         
         # Export button section
-        self.exportButton = QPushButton("Export Report to Excel")
+        self.exportButton = QPushButton("Export Report")
         self.exportButton.setFont(QFont("Arial", 9, QFont.Weight.Bold))  # 10% smaller
         self.exportButton.setStyleSheet("background-color: #2980B9; color: white; padding: 9px; border: 2px solid #3498DB; border-radius: 5px;")  # 10% smaller padding
         self.exportButton.clicked.connect(self.exportReport)
@@ -282,28 +282,40 @@ class DupliFynder(QWidget):
         self.statusBar.showMessage("Scan complete. Duplicates found.")
     
     def exportReport(self):
-        # Export scan results to Excel
+        # Export scan results to various formats
         if not self.duplicates:
             return
-        
+
         data = []
-        for group in self.duplicates:
+        for idx, group in enumerate(self.duplicates, 1):
             for file in group:
                 file_stats = os.stat(file)
                 data.append({
+                    "Group": f"Group {idx}",
                     "Path": file,
                     "Name": os.path.basename(file),
                     "Type": os.path.splitext(file)[1],
                     "Size (bytes)": file_stats.st_size,
-                    "Timestamp": file_stats.st_mtime,
+                    "Timestamp": datetime.fromtimestamp(file_stats.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
                 })
-        
+
         df = pd.DataFrame(data)
         now = datetime.now().strftime("%Y%m%d_%H%M%S")
-        default_filename = f"DupliFyndReport_{now}.xlsx"
-        save_path, _ = QFileDialog.getSaveFileName(self, "Save Report", default_filename, "Excel Files (*.xlsx)")
+        default_filename = f"DupliFyndReport_{now}"
+
+        options = QFileDialog.Options()
+        file_filter = "Excel Files (*.xlsx);;CSV Files (*.csv);;JSON Files (*.json);;OpenDocument Spreadsheet (*.ods)"
+        save_path, selected_filter = QFileDialog.getSaveFileName(self, "Save Report", default_filename, file_filter, options=options)
+
         if save_path:
-            df.to_excel(save_path, index=False)
+            if selected_filter == "Excel Files (*.xlsx)":
+                df.to_excel(save_path, index=False)
+            elif selected_filter == "CSV Files (*.csv)":
+                df.to_csv(save_path, index=False)
+            elif selected_filter == "JSON Files (*.json)":
+                df.to_json(save_path, orient='records', lines=True)
+            elif selected_filter == "OpenDocument Spreadsheet (*.ods)":
+                df.to_excel(save_path, index=False, engine='odf')
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
